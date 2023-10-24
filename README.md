@@ -2,7 +2,7 @@
 [![Documentation](https://docs.rs/embedded-hal/badge.svg)](https://docs.rs/embedded-hal)
 ![Minimum Supported Rust Version](https://img.shields.io/badge/rustc-1.60+-blue.svg) -->
 
-# TLA2528
+# TLA2528 [![Cloud-CI](https://github.com/Radiator-Labs/tla2528-rs/actions/workflows/cloud-ci.yml/badge.svg)](https://github.com/Radiator-Labs/tla2528-rs_fw/actions/workflows/cloud-ci.yml)
 
 Embedded Rust driver for the TI TLA2528 ADC, an I2C-connected Analog to Digital Converter.
 
