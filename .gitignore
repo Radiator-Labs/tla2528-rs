@@ -1,0 +1,26 @@
+.DS_Store
+target/
+.metadata/
+
+# hardware
+*.kicad_prl
+fp-info-cache
+*-backups/
+*_autosave*
+*.bak
+CAM/
+hardware/kicad/sensors/production/
+hardware/kicad/main/production/
+hardware/kicad/EVT_sensors_breakout/production/
+hardware/altium/CozyBoardSandbox/History/
+hardware/altium/CozyBoardSandbox/__Previews/
+hardware/altium/CozyBoardSandbox/Project Logs for CozyBoardSandbox/
+hardware/altium/CozyBoardPort/sheet/
+hardware/altium/CozyBoardPort/libraries/
+hardware/kicad/main/Imported adc/
+hardware/altium/CozyBoardPort/main-2023-07-21.csv
+*.$$$
+hardware/altium/CozyBoardPort/bom/
+hardware/altium/CozyBoardPort/Crosscheck_Release/
+hardware/altium/CozyBoardPort/Release folder/
+hardware/altium/CozyBoardPort/Project Outputs for CozyBoard/

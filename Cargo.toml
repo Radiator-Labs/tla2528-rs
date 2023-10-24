@@ -1,0 +1,37 @@
+[package]
+name = "tla2528"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+authors = [
+    "Phil Markgraf <philip.markgraf@kel.vin>",
+    "Phil “Shaken” Markgraf <ShakenCodes@gmail.com>",
+]
+readme = "README.md"
+description = "Driver for operating the TI TLA2528 ADC with the Rust embedded-hal."
+repository = "https://github.com/Radiator-Labs/cozyboard_2023/tree/master/firmware/shared/tla2528-rs"
+keywords = [
+    "kelvin",
+    "kel.vin",
+    "radiator-labs",
+    "adc",
+    "driver",
+    "embedded",
+    "hardware-support",
+    "no-std",
+    "tla2528",
+]
+categories = [
+    "embedded",
+    "Embedded development",
+    "hardware-support",
+    "no-std",
+    "No standard library",
+]
+
+[badges]
+maintenance = { status = "actively-developed" }
+
+[dependencies]
+embedded-hal = "1.0.0-rc.1"
+bitflags = "2.4.1"
