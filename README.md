@@ -4,11 +4,11 @@
 
 # TLA2528
 
-Driver for operating the TI TLA2528 ADC with the Rust embedded-hal.
+Embedded Rust driver for the TI TLA2528 ADC, an I2C-connected Analog to Digital Converter.
 
 ## Attribution
 
-Work creating this driver to support the SSD1680 was performed as part of commercial
+Work creating this driver to support the TLA2528 was performed as part of commercial
 development by [Kelvin](https://kel.vin/) (formerly Radiator Labs), a green energy company
 dedicated to decarbonizing the world's legacy buildings.
 
