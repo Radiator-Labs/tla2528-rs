@@ -181,7 +181,7 @@ where
 
         // channel sequencing SEQ_START = 0
         self.chip
-            .write_sequence_config(SequenceConfig::StartedAuto)?;
+            .write_sequence_config(SequenceConfig::StoppedAuto)?;
 
         Ok(data)
     }
