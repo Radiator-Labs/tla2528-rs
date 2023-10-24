@@ -89,7 +89,7 @@ where
     }
 
     fn register_read(&mut self, r: RegisterAddress) -> Result<u8, <I2C as ErrorType>::Error> {
-        let mut incoming = [0; 1];
+        let mut incoming = [0_u8; 1];
         match self.i2c.write_read(
             self.address,
             &[OpCode::SingleRegisterRead.value(), r.value()],
