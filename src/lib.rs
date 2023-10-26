@@ -1,5 +1,6 @@
 #![cfg_attr(not(test), no_std)]
 #![cfg_attr(not(test), no_main)]
+#![feature(async_fn_in_trait)]
 #![deny(clippy::pedantic)]
 #![deny(clippy::cargo)]
 #![deny(clippy::alloc_instead_of_core)]
@@ -53,7 +54,7 @@
 #![deny(clippy::mod_module_files)]
 #![allow(clippy::modulo_arithmetic)]
 #![deny(clippy::multiple_inherent_impl)]
-#![deny(clippy::multiple_unsafe_ops_per_block)]
+#![allow(clippy::multiple_unsafe_ops_per_block)] // due to: https://github.com/rust-lang/rust-clippy/issues/11312
 #![deny(clippy::mutex_atomic)]
 #![deny(clippy::non_ascii_literal)]
 #![deny(clippy::panic)]
@@ -107,7 +108,7 @@ use crate::chip_definitions::{
     GeneralConfigFlags, Oversampling, SequenceConfig, SystemStatusFlags,
 };
 use crate::chip_interface::ChipInterface;
-use embedded_hal::i2c::{ErrorType, I2c, SevenBitAddress};
+use embedded_hal_async::i2c::{ErrorType, I2c, SevenBitAddress};
 
 pub struct Tla2528<I2C> {
     chip: ChipInterface<I2C>,
@@ -126,20 +127,24 @@ where
     /// Passes on I2C errors found in `single_register_read()`
     ///
     /// Passes out I2C communication errors.
-    pub fn get_system_status(&mut self) -> Result<SystemStatusFlags, <I2C as ErrorType>::Error> {
-        self.chip.read_system_status()
+    pub async fn get_system_status(
+        &mut self,
+    ) -> Result<SystemStatusFlags, <I2C as ErrorType>::Error> {
+        self.chip.read_system_status().await
     }
 
     /// # Errors
     ///
     /// Passes out I2C communication errors.
-    pub fn calibrate(&mut self) -> Result<(), <I2C as ErrorType>::Error> {
+    pub async fn calibrate(&mut self) -> Result<(), <I2C as ErrorType>::Error> {
         self.chip
-            .write_general_config(GeneralConfigFlags::CALIBRATE_ADC_OFFSET)?;
+            .write_general_config(GeneralConfigFlags::CALIBRATE_ADC_OFFSET)
+            .await?;
 
         while self
             .chip
-            .read_general_config()?
+            .read_general_config()
+            .await?
             .contains(GeneralConfigFlags::CALIBRATE_ADC_OFFSET)
         {
             // Intentionally empty
@@ -150,38 +155,42 @@ where
     /// # Errors
     ///
     /// Passes out I2C communication errors.
-    pub fn set_oversampling_ratio(
+    pub async fn set_oversampling_ratio(
         &mut self,
         ratio: Oversampling,
     ) -> Result<(), <I2C as ErrorType>::Error> {
-        self.chip.configure_oversampling(ratio)
+        self.chip.configure_oversampling(ratio).await
     }
 
     /// # Errors
     ///
     /// Passes out I2C communication errors.
-    pub fn prepare_for_auto_sequence_mode(&mut self) -> Result<(), <I2C as ErrorType>::Error> {
-        self.chip.configure_all_pins_as_analog_inputs()?;
-        self.chip.configure_auto_sequence_mode()
+    pub async fn prepare_for_auto_sequence_mode(
+        &mut self,
+    ) -> Result<(), <I2C as ErrorType>::Error> {
+        self.chip.configure_all_pins_as_analog_inputs().await?;
+        self.chip.configure_auto_sequence_mode().await
     }
 
     /// # Errors
     ///
     /// Passes out I2C communication errors.
-    pub fn acquire_data(&mut self) -> Result<[u16; 8], <I2C as ErrorType>::Error> {
+    pub async fn acquire_data(&mut self) -> Result<[u16; 8], <I2C as ErrorType>::Error> {
         // Enable channel sequencing SEQ_START = 1
         self.chip
-            .write_sequence_config(SequenceConfig::StartedAuto)?;
+            .write_sequence_config(SequenceConfig::StartedAuto)
+            .await?;
 
         // Host provides Conversion Start Frame on I2C Bus
         // goto here -> *
         // Host provides Conversion Read Frame on I2C Bus
         // continue; yes -> goto --^
-        let data = self.chip.data_read()?;
+        let data = self.chip.data_read().await?;
 
         // channel sequencing SEQ_START = 0
         self.chip
-            .write_sequence_config(SequenceConfig::StoppedAuto)?;
+            .write_sequence_config(SequenceConfig::StoppedAuto)
+            .await?;
 
         Ok(data)
     }

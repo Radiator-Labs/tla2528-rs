@@ -2,7 +2,7 @@ use crate::chip_definitions::{
     DataConfig, GeneralConfigFlags, OpCode, Oversampling, RegisterAddress, SequenceConfig,
     SystemStatusFlags,
 };
-use embedded_hal::i2c::{ErrorType, I2c, SevenBitAddress};
+use embedded_hal_async::i2c::{ErrorType, I2c, SevenBitAddress};
 
 // #[allow(clippy::exhaustive_enums)]
 // #[derive(Debug)]
@@ -23,95 +23,113 @@ where
         ChipInterface { i2c, address }
     }
 
-    pub(crate) fn configure_all_pins_as_analog_inputs(
+    pub(crate) async fn configure_all_pins_as_analog_inputs(
         &mut self,
     ) -> Result<(), <I2C as ErrorType>::Error> {
-        self.register_write(RegisterAddress::PinConfig, 0b_0000_0000)?;
+        self.register_write(RegisterAddress::PinConfig, 0b_0000_0000)
+            .await?;
 
         // Not absolutely necessary, as PinConfig of 0 overrides these values.
-        self.register_write(RegisterAddress::GpioConfig, 0b_0000_0000)?;
+        self.register_write(RegisterAddress::GpioConfig, 0b_0000_0000)
+            .await?;
         self.register_write(RegisterAddress::GpioDriveConfig, 0b_0000_0000)
+            .await
     }
 
-    pub(crate) fn configure_oversampling(
+    pub(crate) async fn configure_oversampling(
         &mut self,
         ratio: Oversampling,
     ) -> Result<(), <I2C as ErrorType>::Error> {
-        self.write_oversampling_config(ratio)
+        self.write_oversampling_config(ratio).await
     }
 
-    pub(crate) fn configure_auto_sequence_mode(&mut self) -> Result<(), <I2C as ErrorType>::Error> {
-        self.write_data_config(DataConfig::NormalDataAddChannelID)?;
-        self.write_sequence_config(SequenceConfig::StoppedAuto)?;
+    pub(crate) async fn configure_auto_sequence_mode(
+        &mut self,
+    ) -> Result<(), <I2C as ErrorType>::Error> {
+        self.write_data_config(DataConfig::NormalDataAddChannelID)
+            .await?;
+        self.write_sequence_config(SequenceConfig::StoppedAuto)
+            .await?;
         self.register_write(RegisterAddress::AutoSequenceChannelSelect, 0b_1111_1111)
+            .await
     }
 
-    pub(crate) fn read_system_status(
+    pub(crate) async fn read_system_status(
         &mut self,
     ) -> Result<SystemStatusFlags, <I2C as ErrorType>::Error> {
-        let bits = self.register_read(RegisterAddress::SystemStatus)?;
+        let bits = self.register_read(RegisterAddress::SystemStatus).await?;
         Ok(SystemStatusFlags::from_bits_retain(bits))
     }
 
-    pub(crate) fn read_general_config(
+    pub(crate) async fn read_general_config(
         &mut self,
     ) -> Result<GeneralConfigFlags, <I2C as ErrorType>::Error> {
-        let bits = self.register_read(RegisterAddress::GeneralConfig)?;
+        let bits = self.register_read(RegisterAddress::GeneralConfig).await?;
         Ok(GeneralConfigFlags::from_bits_retain(bits))
     }
 
-    pub(crate) fn write_general_config(
+    pub(crate) async fn write_general_config(
         &mut self,
         config: GeneralConfigFlags,
     ) -> Result<(), <I2C as ErrorType>::Error> {
         self.register_write(RegisterAddress::DataConfig, config.bits())
+            .await
     }
 
-    pub(crate) fn write_data_config(
+    pub(crate) async fn write_data_config(
         &mut self,
         config: DataConfig,
     ) -> Result<(), <I2C as ErrorType>::Error> {
         self.register_write(RegisterAddress::DataConfig, config.value())
+            .await
     }
 
-    pub(crate) fn write_oversampling_config(
+    pub(crate) async fn write_oversampling_config(
         &mut self,
         config: Oversampling,
     ) -> Result<(), <I2C as ErrorType>::Error> {
         self.register_write(RegisterAddress::OsrConfig, config.value())
+            .await
     }
 
-    pub(crate) fn write_sequence_config(
+    pub(crate) async fn write_sequence_config(
         &mut self,
         config: SequenceConfig,
     ) -> Result<(), <I2C as ErrorType>::Error> {
         self.register_write(RegisterAddress::SequenceConfig, config.value())
+            .await
     }
 
-    fn register_read(&mut self, r: RegisterAddress) -> Result<u8, <I2C as ErrorType>::Error> {
+    async fn register_read(&mut self, r: RegisterAddress) -> Result<u8, <I2C as ErrorType>::Error> {
         let mut incoming = [0_u8; 1];
-        match self.i2c.write_read(
-            self.address,
-            &[OpCode::SingleRegisterRead.value(), r.value()],
-            &mut incoming,
-        ) {
+        let res = self
+            .i2c
+            .write_read(
+                self.address,
+                &[OpCode::SingleRegisterRead.value(), r.value()],
+                &mut incoming,
+            )
+            .await;
+        match res {
             Ok(()) => Ok(incoming[0]),
             Err(err) => Err(err),
         }
     }
 
-    fn register_write(
+    async fn register_write(
         &mut self,
         r: RegisterAddress,
         val: u8,
     ) -> Result<(), <I2C as ErrorType>::Error> {
-        self.i2c.write(
-            self.address,
-            &[OpCode::SingleRegisterWrite.value(), r.value(), val],
-        )
+        self.i2c
+            .write(
+                self.address,
+                &[OpCode::SingleRegisterWrite.value(), r.value(), val],
+            )
+            .await
     }
 
-    pub(crate) fn data_read(&mut self) -> Result<[u16; 8], <I2C as ErrorType>::Error> {
+    pub(crate) async fn data_read(&mut self) -> Result<[u16; 8], <I2C as ErrorType>::Error> {
         // Would prefer to work with an array of these,
         // packed so the struct was exactly 3 bytes
         // struct AdcOutput {
@@ -119,7 +137,7 @@ where
         //     channel: u8,
         // }
         let mut data_buffer = [0_u8; (8 * 3)];
-        self.i2c.read(self.address, &mut data_buffer)?;
+        self.i2c.read(self.address, &mut data_buffer).await?;
         #[allow(clippy::cast_lossless)]
         let data = [
             (256_u16 * data_buffer[0] as u16) + data_buffer[1] as u16,
