@@ -130,25 +130,20 @@ where
     }
 
     pub(crate) async fn data_read(&mut self) -> Result<[u16; 8], <I2C as ErrorType>::Error> {
-        // Would prefer to work with an array of these,
-        // packed so the struct was exactly 3 bytes
-        // struct AdcOutput {
-        //     data: u16,
-        //     channel: u8,
-        // }
         let mut data_buffer = [0_u8; (8 * 3)];
         self.i2c.read(self.address, &mut data_buffer).await?;
-        #[allow(clippy::cast_lossless)]
-        let data = [
-            (256_u16 * data_buffer[0] as u16) + data_buffer[1] as u16,
-            (256_u16 * data_buffer[3] as u16) + data_buffer[4] as u16,
-            (256_u16 * data_buffer[6] as u16) + data_buffer[7] as u16,
-            (256_u16 * data_buffer[9] as u16) + data_buffer[10] as u16,
-            (256_u16 * data_buffer[12] as u16) + data_buffer[13] as u16,
-            (256_u16 * data_buffer[15] as u16) + data_buffer[16] as u16,
-            (256_u16 * data_buffer[18] as u16) + data_buffer[19] as u16,
-            (256_u16 * data_buffer[21] as u16) + data_buffer[22] as u16,
-        ];
-        Ok(data)
+
+        let mut out = [0_u16; 8];
+        data_buffer
+            .chunks_exact(3)
+            .zip(out.iter_mut())
+            .for_each(|(chunk, destination)| {
+                let mut buf = [0_u8; 2];
+
+                #[allow(clippy::indexing_slicing)] // Safe due to slice matching buf size
+                buf.copy_from_slice(&chunk[..2]);
+                *destination = u16::from_be_bytes(buf);
+            });
+        Ok(out)
     }
 }
