@@ -107,8 +107,8 @@ mod chip_interface;
 use crate::chip_definitions::{
     GeneralConfigFlags, Oversampling, SequenceConfig, SystemStatusFlags,
 };
-use crate::chip_interface::ChipInterface;
-use embedded_hal_async::i2c::{ErrorType, I2c, SevenBitAddress};
+use crate::chip_interface::{ChipInterface, Tla2528Error};
+use embedded_hal_async::i2c::{I2c, SevenBitAddress};
 
 pub struct Tla2528<I2C> {
     chip: ChipInterface<I2C>,
@@ -117,6 +117,7 @@ pub struct Tla2528<I2C> {
 impl<I2C> Tla2528<I2C>
 where
     I2C: I2c<SevenBitAddress>,
+    I2C::Error: Into<Tla2528Error<I2C::Error>>,
 {
     pub fn new(i2c: I2C, address: u8) -> Self {
         Tla2528 {
@@ -129,14 +130,14 @@ where
     /// Passes out I2C communication errors.
     pub async fn get_system_status(
         &mut self,
-    ) -> Result<SystemStatusFlags, <I2C as ErrorType>::Error> {
+    ) -> Result<SystemStatusFlags, Tla2528Error<I2C::Error>> {
         self.chip.read_system_status().await
     }
 
     /// # Errors
     ///
     /// Passes out I2C communication errors.
-    pub async fn calibrate(&mut self) -> Result<(), <I2C as ErrorType>::Error> {
+    pub async fn calibrate(&mut self) -> Result<(), Tla2528Error<I2C::Error>> {
         self.chip
             .write_general_config(GeneralConfigFlags::CALIBRATE_ADC_OFFSET)
             .await?;
@@ -158,16 +159,14 @@ where
     pub async fn set_oversampling_ratio(
         &mut self,
         ratio: Oversampling,
-    ) -> Result<(), <I2C as ErrorType>::Error> {
+    ) -> Result<(), Tla2528Error<I2C::Error>> {
         self.chip.configure_oversampling(ratio).await
     }
 
     /// # Errors
     ///
     /// Passes out I2C communication errors.
-    pub async fn prepare_for_auto_sequence_mode(
-        &mut self,
-    ) -> Result<(), <I2C as ErrorType>::Error> {
+    pub async fn prepare_for_auto_sequence_mode(&mut self) -> Result<(), Tla2528Error<I2C::Error>> {
         self.chip.configure_all_pins_as_analog_inputs().await?;
         self.chip.configure_auto_sequence_mode().await
     }
@@ -175,7 +174,7 @@ where
     /// # Errors
     ///
     /// Passes out I2C communication errors.
-    pub async fn acquire_data(&mut self) -> Result<[u16; 8], <I2C as ErrorType>::Error> {
+    pub async fn acquire_data(&mut self) -> Result<[u16; 8], Tla2528Error<I2C::Error>> {
         // Enable channel sequencing SEQ_START = 1
         self.chip
             .write_sequence_config(SequenceConfig::StartedAuto)
