@@ -2,7 +2,7 @@ use crate::chip_definitions::{
     DataConfig, GeneralConfigFlags, OpCode, Oversampling, RegisterAddress, SequenceConfig,
     SystemStatusFlags,
 };
-use embedded_hal_async::i2c::{ErrorType, I2c, SevenBitAddress};
+use embedded_hal::i2c::{ErrorType, I2c, SevenBitAddress};
 
 #[derive(Debug)]
 #[non_exhaustive]
@@ -31,115 +31,97 @@ where
         ChipInterface { i2c, address }
     }
 
-    pub(crate) async fn configure_all_pins_as_analog_inputs(
+    pub(crate) fn configure_all_pins_as_analog_inputs(
         &mut self,
     ) -> Result<(), Tla2528Error<I2C::Error>> {
-        self.register_write(RegisterAddress::PinConfig, 0b_0000_0000)
-            .await?;
+        self.register_write(RegisterAddress::PinConfig, 0b_0000_0000)?;
 
         // Not absolutely necessary, as PinConfig of 0 overrides these values.
-        self.register_write(RegisterAddress::GpioConfig, 0b_0000_0000)
-            .await?;
+        self.register_write(RegisterAddress::GpioConfig, 0b_0000_0000)?;
         self.register_write(RegisterAddress::GpioDriveConfig, 0b_0000_0000)
-            .await?;
-        Ok(())
     }
 
-    pub(crate) async fn configure_oversampling(
+    pub(crate) fn configure_oversampling(
         &mut self,
         ratio: Oversampling,
     ) -> Result<(), Tla2528Error<I2C::Error>> {
-        self.write_oversampling_config(ratio).await
+        self.write_oversampling_config(ratio)
     }
 
-    pub(crate) async fn configure_auto_sequence_mode(
-        &mut self,
-    ) -> Result<(), Tla2528Error<I2C::Error>> {
-        self.write_data_config(DataConfig::NormalDataAddChannelID)
-            .await?;
-        self.write_sequence_config(SequenceConfig::StoppedAuto)
-            .await?;
+    pub(crate) fn configure_auto_sequence_mode(&mut self) -> Result<(), Tla2528Error<I2C::Error>> {
+        self.write_data_config(DataConfig::NormalDataAddChannelID)?;
+        self.write_sequence_config(SequenceConfig::StoppedAuto)?;
         self.register_write(RegisterAddress::AutoSequenceChannelSelect, 0b_1111_1111)
-            .await
     }
 
-    pub(crate) async fn read_system_status(
+    pub(crate) fn read_system_status(
         &mut self,
     ) -> Result<SystemStatusFlags, Tla2528Error<I2C::Error>> {
-        let bits = self.register_read(RegisterAddress::SystemStatus).await?;
+        let bits = self.register_read(RegisterAddress::SystemStatus)?;
         Ok(SystemStatusFlags::from_bits_retain(bits))
     }
 
-    pub(crate) async fn read_general_config(
+    pub(crate) fn read_general_config(
         &mut self,
     ) -> Result<GeneralConfigFlags, Tla2528Error<I2C::Error>> {
-        let bits = self.register_read(RegisterAddress::GeneralConfig).await?;
+        let bits = self.register_read(RegisterAddress::GeneralConfig)?;
         Ok(GeneralConfigFlags::from_bits_retain(bits))
     }
 
-    pub(crate) async fn write_general_config(
+    pub(crate) fn write_general_config(
         &mut self,
         config: GeneralConfigFlags,
     ) -> Result<(), Tla2528Error<I2C::Error>> {
         self.register_write(RegisterAddress::DataConfig, config.bits())
-            .await
     }
 
-    pub(crate) async fn write_data_config(
+    pub(crate) fn write_data_config(
         &mut self,
         config: DataConfig,
     ) -> Result<(), Tla2528Error<I2C::Error>> {
         self.register_write(RegisterAddress::DataConfig, config.value())
-            .await
     }
 
-    pub(crate) async fn write_oversampling_config(
+    pub(crate) fn write_oversampling_config(
         &mut self,
         config: Oversampling,
     ) -> Result<(), Tla2528Error<I2C::Error>> {
         self.register_write(RegisterAddress::OsrConfig, config.value())
-            .await
     }
 
-    pub(crate) async fn write_sequence_config(
+    pub(crate) fn write_sequence_config(
         &mut self,
         config: SequenceConfig,
     ) -> Result<(), Tla2528Error<I2C::Error>> {
         self.register_write(RegisterAddress::SequenceConfig, config.value())
-            .await
     }
 
-    async fn register_read(&mut self, r: RegisterAddress) -> Result<u8, Tla2528Error<I2C::Error>> {
+    fn register_read(&mut self, r: RegisterAddress) -> Result<u8, Tla2528Error<I2C::Error>> {
         let mut incoming = [0_u8; 1];
-        let res = self
-            .i2c
-            .write_read(
-                self.address,
-                &[OpCode::SingleRegisterRead.value(), r.value()],
-                &mut incoming,
-            )
-            .await;
+        let res = self.i2c.write_read(
+            self.address,
+            &[OpCode::SingleRegisterRead.value(), r.value()],
+            &mut incoming,
+        );
 
         Ok(res.map(|()| incoming[0])?)
     }
 
-    async fn register_write(
+    fn register_write(
         &mut self,
         r: RegisterAddress,
         val: u8,
     ) -> Result<(), Tla2528Error<I2C::Error>> {
-        self.i2c
-            .write(
-                self.address,
-                &[OpCode::SingleRegisterWrite.value(), r.value(), val],
-            )
-            .await?;
+        self.i2c.write(
+            self.address,
+            &[OpCode::SingleRegisterWrite.value(), r.value(), val],
+        )?;
         Ok(())
     }
 
-    pub(crate) async fn data_read(&mut self) -> Result<[u16; 8], <I2C as ErrorType>::Error> {
+    pub(crate) fn data_read(&mut self) -> Result<[u16; 8], <I2C as ErrorType>::Error> {
         let mut data_buffer = [0_u8; (8 * 3)];
-        self.i2c.read(self.address, &mut data_buffer).await?;
+        self.i2c.read(self.address, &mut data_buffer)?;
 
         let mut out = [0_u16; 8];
         data_buffer
