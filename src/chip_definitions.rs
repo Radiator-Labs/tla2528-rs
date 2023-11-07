@@ -70,6 +70,7 @@ bitflags! {
 }
 
 #[allow(dead_code)]
+#[derive(Debug)]
 #[repr(u8)]
 pub(crate) enum DataConfig {
     NormalDataNoChannelID = 0b_0000_0000,
@@ -84,6 +85,7 @@ impl DataConfig {
 }
 
 #[allow(dead_code)]
+#[derive(Debug)]
 #[repr(u8)]
 #[non_exhaustive]
 pub enum Oversampling {
@@ -103,6 +105,7 @@ impl Oversampling {
 }
 
 #[allow(dead_code, non_camel_case_types)]
+#[derive(Debug)]
 #[repr(u8)]
 #[non_exhaustive]
 pub enum SamplingRate {
