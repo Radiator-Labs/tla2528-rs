@@ -16,7 +16,7 @@ checksum = "2894bc2f0457b8ca3d6b8ab8aad64d9337583672494013457f86c5a9146c0e22"
 
 [[package]]
 name = "tla2528"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "bitflags",
  "embedded-hal",

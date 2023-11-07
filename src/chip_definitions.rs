@@ -102,6 +102,49 @@ impl Oversampling {
     }
 }
 
+#[allow(dead_code, non_camel_case_types)]
+#[repr(u8)]
+#[non_exhaustive]
+pub enum SamplingRate {
+    HighSpeedOscillator_1_000_xxx_Sps = 0b_0000_0000,
+    HighSpeedOscillator_666_7xx_Sps = 0b_0000_0001,
+    HighSpeedOscillator_500_xxx_Sps = 0b_0000_0010,
+    HighSpeedOscillator_333_3xx_Sps = 0b_0000_0011,
+    HighSpeedOscillator_250_xxx_Sps = 0b_0000_0100,
+    HighSpeedOscillator_166_7xx_Sps = 0b_0000_0101,
+    HighSpeedOscillator_125_xxx_Sps = 0b_0000_0110,
+    HighSpeedOscillator_83_xxx_Sps = 0b_0000_0111,
+    HighSpeedOscillator_62_5xx_Sps = 0b_0000_1000,
+    HighSpeedOscillator_41_7xx_Sps = 0b_0000_1001,
+    HighSpeedOscillator_31_3xx_Sps = 0b_0000_1010,
+    HighSpeedOscillator_20_8xx_Sps = 0b_0000_1011,
+    HighSpeedOscillator_15_6xx_Sps = 0b_0000_1100,
+    HighSpeedOscillator_10_4xx_Sps = 0b_0000_1101,
+    HighSpeedOscillator_7_8xx_Sps = 0b_0000_1110,
+    HighSpeedOscillator_5_2xx_Sps = 0b_0000_1111,
+    LowSpeedOscillator_31_25x_Sps = 0b_0001_0000,
+    LowSpeedOscillator_20_83x_Sps = 0b_0001_0001,
+    LowSpeedOscillator_15_63x_Sps = 0b_0001_0010,
+    LowSpeedOscillator_10_42x_Sps = 0b_0001_0011,
+    LowSpeedOscillator_7_81x_Sps = 0b_0001_0100,
+    LowSpeedOscillator_5_21x_Sps = 0b_0001_0101,
+    LowSpeedOscillator_3_91x_Sps = 0b_0001_0110,
+    LowSpeedOscillator_2_60x_Sps = 0b_0001_0111,
+    LowSpeedOscillator_1_95x_Sps = 0b_0001_1000,
+    LowSpeedOscillator_1_30x_Sps = 0b_0001_1001,
+    LowSpeedOscillator_0_98x_Sps = 0b_0001_1010,
+    LowSpeedOscillator_0_65x_Sps = 0b_0001_1011,
+    LowSpeedOscillator_0_49x_Sps = 0b_0001_1100,
+    LowSpeedOscillator_0_33x_Sps = 0b_0001_1101,
+    LowSpeedOscillator_0_24x_Sps = 0b_0001_1110,
+    LowSpeedOscillator_0_16x_Sps = 0b_0001_1111,
+}
+impl SamplingRate {
+    pub(crate) fn value(self) -> u8 {
+        self as u8
+    }
+}
+
 #[allow(dead_code)]
 #[repr(u8)]
 pub(crate) enum SequenceConfig {

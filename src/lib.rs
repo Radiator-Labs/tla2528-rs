@@ -107,6 +107,7 @@ use crate::chip_definitions::{
     GeneralConfigFlags, Oversampling, SequenceConfig, SystemStatusFlags,
 };
 use crate::chip_interface::{ChipInterface, Tla2528Error};
+use chip_definitions::SamplingRate;
 use embedded_hal::i2c::{I2c, SevenBitAddress};
 
 pub struct Tla2528<I2C> {
@@ -156,6 +157,16 @@ where
         ratio: Oversampling,
     ) -> Result<(), Tla2528Error<I2C::Error>> {
         self.chip.configure_oversampling(ratio)
+    }
+
+    /// # Errors
+    ///
+    /// Passes out I2C communication errors.
+    pub fn set_sampling_rate(
+        &mut self,
+        rate: SamplingRate,
+    ) -> Result<(), Tla2528Error<I2C::Error>> {
+        self.chip.configure_sampling_rate(rate)
     }
 
     /// # Errors

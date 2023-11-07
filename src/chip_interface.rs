@@ -1,6 +1,6 @@
 use crate::chip_definitions::{
-    DataConfig, GeneralConfigFlags, OpCode, Oversampling, RegisterAddress, SequenceConfig,
-    SystemStatusFlags,
+    DataConfig, GeneralConfigFlags, OpCode, Oversampling, RegisterAddress, SamplingRate,
+    SequenceConfig, SystemStatusFlags,
 };
 use embedded_hal::i2c::{ErrorType, I2c, SevenBitAddress};
 
@@ -45,7 +45,14 @@ where
         &mut self,
         ratio: Oversampling,
     ) -> Result<(), Tla2528Error<I2C::Error>> {
-        self.write_oversampling_config(ratio)
+        self.register_write(RegisterAddress::OsrConfig, ratio.value())
+    }
+
+    pub(crate) fn configure_sampling_rate(
+        &mut self,
+        config: SamplingRate,
+    ) -> Result<(), Tla2528Error<I2C::Error>> {
+        self.register_write(RegisterAddress::OpModeConfig, config.value())
     }
 
     pub(crate) fn configure_auto_sequence_mode(&mut self) -> Result<(), Tla2528Error<I2C::Error>> {
@@ -80,13 +87,6 @@ where
         config: DataConfig,
     ) -> Result<(), Tla2528Error<I2C::Error>> {
         self.register_write(RegisterAddress::DataConfig, config.value())
-    }
-
-    pub(crate) fn write_oversampling_config(
-        &mut self,
-        config: Oversampling,
-    ) -> Result<(), Tla2528Error<I2C::Error>> {
-        self.register_write(RegisterAddress::OsrConfig, config.value())
     }
 
     pub(crate) fn write_sequence_config(
