@@ -130,7 +130,10 @@ where
             .for_each(|(chunk, destination)| {
                 let mut buf = [0_u8; 2];
 
-                #[allow(clippy::indexing_slicing)] // Safe due to slice matching buf size
+                #[allow(
+                    clippy::indexing_slicing,
+                    reason = "Safe due to slice matching buf size"
+                )]
                 buf.copy_from_slice(&chunk[..2]);
                 *destination = u16::from_be_bytes(buf);
             });

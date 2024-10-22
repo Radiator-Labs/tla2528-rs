@@ -1,6 +1,9 @@
 use bitflags::bitflags;
 
-#[allow(dead_code)]
+#[allow(
+    dead_code,
+    reason = "Defines all options in the interface, even those that are unused."
+)]
 #[repr(u8)]
 pub(crate) enum OpCode {
     SingleRegisterRead = 0b_0001_0000,
@@ -16,7 +19,10 @@ impl OpCode {
     }
 }
 
-#[allow(dead_code)]
+#[allow(
+    dead_code,
+    reason = "Defines all options in the interface, even those that are unused."
+)]
 #[repr(u8)]
 pub(crate) enum RegisterAddress {
     SystemStatus = 0x00,
@@ -69,7 +75,10 @@ bitflags! {
     }
 }
 
-#[allow(dead_code)]
+#[allow(
+    dead_code,
+    reason = "Defines all options in the interface, even those that are unused."
+)]
 #[derive(Debug)]
 #[repr(u8)]
 pub(crate) enum DataConfig {
@@ -84,7 +93,10 @@ impl DataConfig {
     }
 }
 
-#[allow(dead_code)]
+#[allow(
+    dead_code,
+    reason = "Defines all options in the interface, even those that are unused."
+)]
 #[derive(Debug)]
 #[repr(u8)]
 #[non_exhaustive]
@@ -104,7 +116,14 @@ impl Oversampling {
     }
 }
 
-#[allow(dead_code, non_camel_case_types)]
+#[allow(
+    dead_code,
+    reason = "Defines all options in the interface, even those that are unused."
+)]
+#[allow(
+    non_camel_case_types,
+    reason = "Underscores create clarity in enum values."
+)]
 #[derive(Debug)]
 #[repr(u8)]
 #[non_exhaustive]
@@ -148,7 +167,10 @@ impl SamplingRate {
     }
 }
 
-#[allow(dead_code)]
+#[allow(
+    dead_code,
+    reason = "Defines all options in the interface, even those that are unused."
+)]
 #[repr(u8)]
 pub(crate) enum SequenceConfig {
     Manual = 0b_0000_0000,

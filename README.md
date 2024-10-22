@@ -14,8 +14,9 @@ dedicated to decarbonizing the world's legacy buildings.
 
 ## Minimum Supported Rust Version (MSRV)
 
-This crate is guaranteed to compile on stable Rust TBD and up. It *might*
+This crate is guaranteed to compile on stable Rust 1.81 and up. It *might*
 compile with older versions but that may change in any new patch release.
+Changes in Clippy support are the main factor driving the version dependency.
 
 See [here](../docs/msrv.md) for details on how the MSRV may be upgraded.
 

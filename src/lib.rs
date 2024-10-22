@@ -5,8 +5,14 @@
 #![deny(clippy::alloc_instead_of_core)]
 // #![allow(clippy::allow_attributes)] // coming in 1.70.0
 #![deny(clippy::allow_attributes_without_reason)]
-#![allow(clippy::arithmetic_side_effects)]
-#![allow(clippy::as_conversions)]
+#![allow(
+    clippy::arithmetic_side_effects,
+    reason = "Kelvin Embedded style guide: Arithmetic side effects commonly used in embedded systems programming."
+)]
+#![allow(
+    clippy::as_conversions,
+    reason = "clippy::as_conversions explanation lost in history. TODO remove allow and find reason."
+)]
 #![deny(clippy::as_underscore)]
 #![deny(clippy::assertions_on_constants)]
 #![deny(clippy::clone_on_ref_ptr)]
@@ -17,11 +23,21 @@
 #![deny(clippy::default_union_representation)]
 #![deny(clippy::deref_by_slicing)]
 #![deny(clippy::disallowed_script_idents)]
+#![allow(
+    clippy::duplicated_attributes,
+    reason = "https://github.com/rust-lang/rust-clippy/issues/13500"
+)]
 #![deny(clippy::else_if_without_else)]
 #![deny(clippy::empty_drop)]
 #![deny(clippy::empty_structs_with_brackets)]
-#![deny(clippy::exhaustive_enums)]
-#![deny(clippy::exhaustive_structs)]
+#![allow(
+    clippy::exhaustive_enums,
+    reason = "Kelvin Embedded style guide: allowing public enumerants is consistent with a functional style use of enumerations as pure data."
+)]
+#![allow(
+    clippy::exhaustive_structs,
+    reason = "Kelvin Embedded style guide: allowing public field access is consistent with a functional style use of data structures as pure data."
+)]
 #![deny(clippy::exit)]
 #![deny(clippy::expect_used)]
 #![deny(clippy::filetype_is_file)]
@@ -32,12 +48,23 @@
 #![deny(clippy::get_unwrap)]
 #![deny(clippy::if_then_some_else_none)]
 #![deny(clippy::impl_trait_in_params)]
-#![allow(clippy::implicit_return)]
-#![deny(clippy::indexing_slicing)]
+#![allow(
+    clippy::implicit_return,
+    reason = "Kelvin Embedded Style Guide: Implicit returns are an idiomatic approach that improves code readability."
+)]
+#![allow(
+    clippy::indexing_slicing,
+    reason = "Required by defmt. TODO fix this in defmt library"
+)]
 #![deny(clippy::inline_asm_x86_att_syntax)]
-#![allow(clippy::inline_asm_x86_intel_syntax)]
-#![allow(clippy::arithmetic_side_effects)]
-#![allow(clippy::integer_division)]
+#![allow(
+    clippy::inline_asm_x86_intel_syntax,
+    reason = "clippy::inline_asm_x86_intel_syntax explanation lost in history. TODO remove allow and find reason."
+)]
+#![allow(
+    clippy::integer_division,
+    reason = "Kelvin Embedded Style Guide: Integer division is a normally used operation in embedded systems programming."
+)]
 #![deny(clippy::large_include_file)]
 #![deny(clippy::let_underscore_must_use)]
 #![deny(clippy::let_underscore_untyped)]
@@ -45,13 +72,26 @@
 #![deny(clippy::map_err_ignore)]
 #![deny(clippy::mem_forget)]
 // #![deny(clippy::missing_assert_message)] // coming in 1.70.0
-#![allow(clippy::missing_docs_in_private_items)]
+#![allow(
+    clippy::missing_docs_in_private_items,
+    reason = "clippy::missing_docs_in_private_items explanation lost in history. TODO remove allow and find reason."
+)]
 #![deny(clippy::missing_enforced_import_renames)]
-#![allow(clippy::missing_inline_in_public_items)]
+#![allow(
+    clippy::missing_inline_in_public_items,
+    reason = "clippy::missing_inline_in_public_items explanation lost in history. TODO remove allow and find reason."
+)]
 #![deny(clippy::missing_trait_methods)]
 #![deny(clippy::mixed_read_write_in_expression)]
 #![deny(clippy::mod_module_files)]
-#![allow(clippy::modulo_arithmetic)]
+#![allow(
+    clippy::modulo_arithmetic,
+    reason = "clippy::modulo_arithmetic explanation lost in history. TODO remove allow and find reason."
+)]
+#![allow(
+    clippy::multiple_crate_versions,
+    reason = "clippy::multiple_crate_versions explanation lost in history. TODO remove allow and find reason."
+)]
 #![deny(clippy::multiple_inherent_impl)]
 #![deny(clippy::multiple_unsafe_ops_per_block)]
 #![deny(clippy::mutex_atomic)]
@@ -63,19 +103,32 @@
 #![deny(clippy::print_stderr)]
 #![deny(clippy::print_stdout)]
 #![deny(clippy::pub_use)]
-#![allow(clippy::question_mark_used)]
+#![allow(
+    clippy::question_mark_used,
+    reason = "Allowed by Kelvin Style Guide. This is idiomatic Rust."
+)]
 #![deny(clippy::rc_buffer)]
 #![deny(clippy::rc_mutex)]
+#![deny(clippy::redundant_feature_names)]
 // #![deny(clippy::ref_patterns)] // coming in 1.70.0
 #![deny(clippy::rest_pat_in_fully_bound_structs)]
-#![allow(clippy::same_name_method)] // reconsider. Due to bitflags! macro
+#![allow(
+    clippy::same_name_method,
+    reason = "TODO reconsider. Due to bitflags! macro"
+)]
 #![deny(clippy::self_named_module_files)]
 #![deny(clippy::semicolon_outside_block)]
-#![allow(clippy::separated_literal_suffix)]
+#![allow(
+    clippy::separated_literal_suffix,
+    reason = "clippy::separated_literal_suffix explanation lost in history. TODO remove allow and find reason."
+)]
 #![deny(clippy::shadow_reuse)]
 #![deny(clippy::shadow_same)]
 #![deny(clippy::shadow_unrelated)]
-#![allow(clippy::single_char_lifetime_names)]
+#![allow(
+    clippy::single_char_lifetime_names,
+    reason = "Allowed by Kelvin style guide. Single character lifetime names are commonly used in idiomatic Rust."
+)]
 #![deny(clippy::std_instead_of_alloc)]
 #![deny(clippy::std_instead_of_core)]
 #![deny(clippy::str_to_string)]
