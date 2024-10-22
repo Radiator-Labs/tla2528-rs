@@ -29,17 +29,12 @@ jobs:
         rm -rf gcc-arm-none-eabi.tar.xz
         sudo apt install libclang-dev
         sudo apt install clang
-        sudo rm /home/runner/.cargo/bin/rust-analyzer
-        sudo rm /home/runner/.cargo/bin/rustfmt
-        sudo rm /home/runner/.cargo/bin/cargo-fmt
-        rustup install nightly-2023-10-02
-        rustup install 1.73.0
         rustup target add thumbv7em-none-eabi
-        rustup target add thumbv7em-none-eabi --toolchain nightly-2023-10-02
         rustup component add rustfmt
-        rustup component add rustfmt --toolchain nightly-2023-10-02-x86_64-unknown-linux-gnu
-        rustup component add clippy --toolchain nightly-2023-10-02-x86_64-unknown-linux-gnu
         rustup show
+        cargo install cargo-machete
+        cargo build --release
+        cargo fmt --all -- --check
         cargo clippy
         cargo test
-        cargo build
+        cargo machete
