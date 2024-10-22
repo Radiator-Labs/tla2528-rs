@@ -1,6 +1,6 @@
 [package]
 name = "tla2528"
-version = "0.3.1"
+version = "0.3.2"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 authors = [
@@ -33,5 +33,5 @@ categories = [
 maintenance = { status = "actively-developed" }
 
 [dependencies]
-embedded-hal = "1.0.0-rc.1"
-bitflags = "2.4.1"
+embedded-hal = "1.0.0"
+bitflags = "2.6.0"
