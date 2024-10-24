@@ -33,8 +33,4 @@ jobs:
         rustup component add rustfmt
         rustup show
         cargo install cargo-machete
-        cargo build --release
-        cargo fmt --all -- --check
-        cargo clippy
-        cargo test
-        cargo machete
+        ./build.sh
