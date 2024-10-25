@@ -153,14 +153,19 @@
 #![deny(clippy::verbose_file_reads)]
 #![deny(clippy::wildcard_enum_match_arm)]
 
+pub mod channel;
 pub mod chip_definitions;
 mod chip_interface;
+pub mod error;
 
-use crate::chip_definitions::{
-    GeneralConfigFlags, Oversampling, SequenceConfig, SystemStatusFlags,
+use crate::{
+    channel::Channel,
+    chip_definitions::{
+        GeneralConfigFlags, Oversampling, SamplingRate, SequenceConfig, SystemStatusFlags,
+    },
+    chip_interface::ChipInterface,
+    error::Error,
 };
-use crate::chip_interface::{ChipInterface, Tla2528Error};
-use chip_definitions::SamplingRate;
 use embedded_hal::i2c::{I2c, SevenBitAddress};
 
 pub struct Tla2528<I2C> {
@@ -170,7 +175,7 @@ pub struct Tla2528<I2C> {
 impl<I2C> Tla2528<I2C>
 where
     I2C: I2c<SevenBitAddress>,
-    I2C::Error: Into<Tla2528Error<I2C::Error>>,
+    I2C::Error: Into<Error<I2C::Error>>,
 {
     pub fn new(i2c: I2C, address: u8) -> Self {
         Tla2528 {
@@ -181,14 +186,14 @@ where
     /// Passes on I2C errors found in `single_register_read()`
     ///
     /// Passes out I2C communication errors.
-    pub fn get_system_status(&mut self) -> Result<SystemStatusFlags, Tla2528Error<I2C::Error>> {
+    pub fn get_system_status(&mut self) -> Result<SystemStatusFlags, Error<I2C::Error>> {
         self.chip.read_system_status()
     }
 
     /// # Errors
     ///
     /// Passes out I2C communication errors.
-    pub fn calibrate(&mut self) -> Result<(), Tla2528Error<I2C::Error>> {
+    pub fn calibrate(&mut self) -> Result<(), Error<I2C::Error>> {
         self.chip
             .write_general_config(GeneralConfigFlags::CALIBRATE_ADC_OFFSET)?;
 
@@ -205,27 +210,21 @@ where
     /// # Errors
     ///
     /// Passes out I2C communication errors.
-    pub fn set_oversampling_ratio(
-        &mut self,
-        ratio: Oversampling,
-    ) -> Result<(), Tla2528Error<I2C::Error>> {
+    pub fn set_oversampling_ratio(&mut self, ratio: Oversampling) -> Result<(), Error<I2C::Error>> {
         self.chip.configure_oversampling(ratio)
     }
 
     /// # Errors
     ///
     /// Passes out I2C communication errors.
-    pub fn set_sampling_rate(
-        &mut self,
-        rate: SamplingRate,
-    ) -> Result<(), Tla2528Error<I2C::Error>> {
+    pub fn set_sampling_rate(&mut self, rate: SamplingRate) -> Result<(), Error<I2C::Error>> {
         self.chip.configure_sampling_rate(rate)
     }
 
     /// # Errors
     ///
     /// Passes out I2C communication errors.
-    pub fn prepare_for_auto_sequence_mode(&mut self) -> Result<(), Tla2528Error<I2C::Error>> {
+    pub fn prepare_for_auto_sequence_mode(&mut self) -> Result<(), Error<I2C::Error>> {
         self.chip.configure_all_pins_as_analog_inputs()?;
         self.chip.configure_auto_sequence_mode()
     }
@@ -233,7 +232,15 @@ where
     /// # Errors
     ///
     /// Passes out I2C communication errors.
-    pub fn acquire_data(&mut self) -> Result<[u16; 8], Tla2528Error<I2C::Error>> {
+    pub fn prepare_for_manual_mode(&mut self) -> Result<(), Error<I2C::Error>> {
+        self.chip.configure_all_pins_as_analog_inputs()?;
+        self.chip.configure_manual_mode()
+    }
+
+    /// # Errors
+    ///
+    /// Passes out I2C communication errors.
+    pub fn acquire_data(&mut self) -> Result<[u16; 8], Error<I2C::Error>> {
         // Enable channel sequencing SEQ_START = 1
         self.chip
             .write_sequence_config(SequenceConfig::StartedAuto)?;
@@ -249,5 +256,16 @@ where
             .write_sequence_config(SequenceConfig::StoppedAuto)?;
 
         Ok(data)
+    }
+
+    /// # Errors
+    ///
+    /// Passes out I2C communication errors.
+    pub fn acquire_channel_data(&mut self, channel: Channel) -> Result<u16, Error<I2C::Error>> {
+        self.chip.set_channel(channel)?;
+        match self.chip.data_channel_read(channel) {
+            Ok((data, _)) => Ok(data),
+            Err(err) => Err(err),
+        }
     }
 }
